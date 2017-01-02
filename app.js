@@ -2,8 +2,10 @@ var builder = require('botbuilder');
 var restify = require('restify');
 var greetings = require("./greetings.js");
 var synonyms = require('find-synonyms');
+var dotenv = require('dotenv')
 
-var connector = new builder.ChatConnector();
+dotenv.load()
+var connector = new builder.ChatConnector({ appId:process.env.MY_APP_ID, appPassword: process.env.MY_APP_SECRET}); 
 var bot = new builder.UniversalBot(connector);
 bot.dialog('/', [
     function(session) {
