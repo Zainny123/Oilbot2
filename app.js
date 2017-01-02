@@ -1,38 +1,54 @@
-var builder = require('botbuilder');
-var restify = require('restify');
+// Add your requirements
+var restify = require('restify'); 
+var builder = require('botbuilder'); 
+var dotenv = require('dotenv');
 var greetings = require("./greetings.js");
-var synonyms = require('find-synonyms');
-var dotenv = require('dotenv')
 
+// var appId = process.env.MY_APP_ID || "missing appId";
+// appPassword: process.env.MY_APP_SECRET || "missing app password";  
 dotenv.load()
-var connector = new builder.ChatConnector({ appId:process.env.MY_APP_ID, appPassword: process.env.MY_APP_SECRET}); 
+
+console.log(process.env.MY_APP_ID);
+// Create chat bot and add dialogs
+var connector = new builder.ChatConnector({ appId:process.env.MY_APP_ID, appPassword: process.env.MY_APP_SECRET});
 var bot = new builder.UniversalBot(connector);
+
+console.log(connector);
+
 bot.dialog('/', [
     function(session) {
         builder.Prompts.text(session, 'Enter your topic');
     },
     function(session, results) {
-    s = results.response;
-    //synonyms(word, n, function (syns) {
-  // syns has length at most n and has synonyms of word 
-    //console.log(syns)
-    
     greetings.callRAPI("/index?doc=" + results.response, function(err,data){
-    console.log(s);
+    //console.log(s);
+    //console.log(data[7])
     if (err) console.log(err);
-    else {
+    else 
+    {
         var obj1 = JSON.parse(data);
         for(i=0;i<6;i++){
-        session.send("Document:%s   Score: %s", obj1[i]['id'],obj1[i]['scores'])
-        }//console.log(data);
-}
+
+        session.send("Document:%s   Score: %s", obj1[i]['id'], obj1[i]['scores'])
+        }
+        //console.log(data);
+    }
+    //session.send('Docs: ' + data)//console.log(data);
+
 });
     }
 ]);
-
-// this is a test change
+// Setup Restify Server
+// Setup Restify Server
 var server = restify.createServer();
-server.listen(process.env.port || process.env.PORT || 3978, function () {
+server.listen(process.env.PORT || 3000, function() 
+{
    console.log('%s listening to %s', server.name, server.url); 
 });
+
 server.post('/api/messages', connector.listen());
+
+// server.get('/', restify.serveStatic({
+//  directory: __dirname,
+//  default: '/index.html'
+// }));
